@@ -1,0 +1,21 @@
+In the implementation of minigpt on an input data of shakespeare text. I first implemented the tokenizer to 
+prepare the data that the model can learn.
+
+The data is prepared in such a way that the model receives batches(32) of the data to be trained on every 
+time the training loop (optimizer + backward ) is ran.
+
+Here we used a AdamW optimizer instead of the Stocastic Gradient Descent optimizer
+( which we used previously in the bigram or MLP character level language model.)
+
+********************************************************************
+How is AdamW different from the SGD?
+
+AdamW (Adaptive Movement of the Weighted mean) is similar an optimizer similar to SGD used to update the model parameters 
+to minimize the loss function.
+It uses the mean and variance of the previous Weights ( memory of the weights)
+It has an advantage of L2 regularization due to weight decay, this prevents the overfitting by making the layers less confident
+w = w - lr * (m_hat / sqrt(v_hat) + e) + wd * w (w = w - lr *gradient -lr * weight_decay*w ) 
+unlike the SGD which is w = w -lr * grad
+
+*********************************************************************
+

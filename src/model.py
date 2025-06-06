@@ -43,3 +43,21 @@ n = CharacterLevelModel(datasetprep.vocab_size)  # Initialize the model with voc
 idx = torch.zeros((1, 1), dtype=torch.long)  # Initialize input with a single token
 #Inference generation.
 print(datasetprep.decode((n.generate(idx,max_new_tokens=100)[0]).tolist()))
+# print(len((n.generate(idx,max_new_tokens=100)[0]).tolist()))
+
+# implementation of an optimizer
+
+optimizer = torch.optim.AdamW(n.parameters(), lr = 0.01)
+
+for i in range(10000):
+
+    xb,yb = datasetprep.get_batch("train")
+    logits,loss = n(xb,yb)
+    optimizer.zero_grad(set_to_none=True)
+    loss.backward()
+    optimizer.step()
+
+print(loss.item())
+
+
+print(datasetprep.decode((n.generate(idx,max_new_tokens=100)[0]).tolist()))
