@@ -14,16 +14,16 @@ class CharacterLevelModel(nn.Module):
         super().__init__()
         self.tokenEmbedding = nn.Embedding(vocab_size, n_embd)
         self.positionalEmbedding = nn.Embedding(block_size, n_embd)
-        self.head = Head()
-        self.lm_head = nn.Linear(head_size, vocab_size)  # Final projection to vocab size
+        self.attn = MultiHeadSelfAttention(n_embd, num_heads=4, block_size=block_size)
+        self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def forward(self, x, targets=None):
         B, T = x.shape
         tok_embd = self.tokenEmbedding(x)
         pos_embd = self.positionalEmbedding(torch.arange(T, device=x.device))
         x = tok_embd + pos_embd
-        x = self.head(x)  # (B, T, head_size)
-        logits = self.lm_head(x)  # (B, T, vocab_size)
+        x = self.attn(x)
+        logits = self.lm_head(x)
         if targets is None:
             loss = None
         else:
@@ -65,14 +65,6 @@ class Head(nn.Module):
         # print(out.shape)
         return out
 
-class Multihead(nn.Module):
-    def __init__(self, n_heads):
-        super().__init__()
-        self.heads = nn.ModuleList([Head() for _ in range(n_heads)])
-    
-    def forward(self, x):
-        out = [head(x) for head in self.heads]
-        return torch.cat(out, dim=-1)  # Concatenate outputs from all heads 
 
 class MultiHeadSelfAttention(nn.Module):
     def __init__(self, n_embd, num_heads, block_size):
